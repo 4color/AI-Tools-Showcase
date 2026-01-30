@@ -1,0 +1,6 @@
+/.cursor
+/.claude
+/.vscode
+/*.vsix
+/backend/backend.zip
+/backend/target

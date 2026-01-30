@@ -1,0 +1,83 @@
+# Spring Boot Application Configuration
+spring:
+  application:
+    name: AI Tools Showcase Backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  # Upload limits (fix 1MB default limit)
+  servlet:
+    multipart:
+      max-file-size: ${MAX_FILE_SIZE:20MB}
+      max-request-size: ${MAX_REQUEST_SIZE:25MB}
+
+  # Default DataSource Configuration
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai_tools_showcase?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # MyBatis Plus Configuration
+  mybatis-plus:
+    mapper-locations: classpath:mapper/*.xml
+    type-aliases-package: com.aitools.backend.entity
+    global-config:
+      id-type: auto
+      db-column-underline: true
+    configuration:
+      map-underscore-to-camel-case: true
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+  # Flyway Configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    sql-migration-prefix: V
+    sql-migration-separator: __
+    validate-on-migrate: false
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8080}
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:aiToolsShowcaseSecretKey2024ForJwtTokenGenerationMustBe256Bits}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Logging Configuration
+logging:
+  level:
+    com.aitools.backend: ${LOG_LEVEL:INFO}
+    org.springframework.security: ${SECURITY_LOG_LEVEL:INFO}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Admin Module
+admin:
+  role: ${ADMIN_ROLE:ADMIN}
+
+# File upload (images) — 通用上传：允许的 folder 与 Banner 生成模板/尺寸在此配置
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:D:\\aidev\\002-aitools\\uploads}
+  url-prefix: ${FILE_URL_PREFIX:/upload-file/}
+  # 上传类型：key 即前端/调用方传入的 folder，value 为该类型的配置（Banner 生成用）
+  upload-types:
+    tutorial-banner:
+      folder: tutorial-banner
+      default-size: "1024x1024"
+      default-size-dashscope: "1440*512"
+      prompt-template: "为一个中文教程生成一张现代简洁的 Banner 封面图（适当带一些关键词或名称）。主题与教程内容相关，画面干净，适合作为网站顶部 Banner。教程标题：{title}。教程简介：{description}。"
+    prompt-banner:
+      folder: prompt-banner
+      default-size: "1024x1024"
+      default-size-dashscope: "1440*512"
+      prompt-template: "为一个中文提示词生成一张现代简洁的 Banner 图（适当带关键词）。主题与提示词内容相关，画面干净，适合作为列表卡片头图。提示词标题：{title}。提示词简介：{description}。"
+    prompt-effect:
+      folder: prompt-effect
+      default-size: "1024x1024"
+      default-size-dashscope: "1440*512"
+      prompt-template: "根据以下 AI 提示词生成一张效果展示图，画面要体现该提示词的应用场景或生成效果，风格现代简洁、适合作为详情页展示。提示词内容：{content}"

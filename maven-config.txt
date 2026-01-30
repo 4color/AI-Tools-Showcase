@@ -1,0 +1,8 @@
+# Maven 配置文件
+# 这个文件用于存储 Maven 的安装路径，方便统一管理
+
+# Maven 安装路径 (根据你的实际情况修改)
+MAVEN_HOME=C:\dev\apache-maven-3.9.8
+
+# Maven 执行文件路径
+MAVEN_EXECUTABLE=%MAVEN_HOME%\bin\mvn.bat

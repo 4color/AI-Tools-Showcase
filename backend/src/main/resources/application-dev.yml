@@ -1,0 +1,44 @@
+# 开发环境配置
+spring:
+  profiles: dev
+
+  # Database Configuration for Development
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai_tools_showcase?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # MyBatis Plus Configuration
+  mybatis-plus:
+    mapper-locations: classpath:mapper/*.xml
+    type-aliases-package: com.aitools.backend.entity
+    global-config:
+      id-type: auto
+      db-column-underline: true
+    configuration:
+      map-underscore-to-camel-case: true
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+  # Flyway Configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    sql-migration-prefix: V
+    sql-migration-separator: __
+    validate-on-migrate: false
+
+  # DevTools for Development
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+# Logging for Development
+logging:
+  level:
+    com.aitools.backend: DEBUG
+    org.springframework.security: DEBUG
+    com.baomidou.mybatisplus: DEBUG
