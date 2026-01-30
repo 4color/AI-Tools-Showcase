@@ -8,6 +8,7 @@ import com.aitools.backend.mapper.CategoryMapper;
 import com.aitools.backend.mapper.LikeMapper;
 import com.aitools.backend.mapper.TutorialMapper;
 import com.aitools.backend.mapper.UserMapper;
+import com.aitools.backend.service.SearchIndexService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class TutorialService {
     private final CategoryMapper categoryMapper;
     private final UserMapper userMapper;
     private final LikeMapper likeMapper;
+    private final SearchIndexService searchIndexService;
 
     public List<Tutorial> getAllTutorials() {
         List<Tutorial> tutorials = tutorialMapper.selectAllOrderByPinnedAndCreatedAt();
@@ -135,6 +137,7 @@ public class TutorialService {
             tutorial.setCategory(null); // 清除临时字段，避免更新时出错
             tutorialMapper.updateById(tutorial);
         }
+        searchIndexService.upsertTutorial(tutorial);
         return tutorial;
     }
 
@@ -142,6 +145,7 @@ public class TutorialService {
      * 后台删除教程
      */
     public void deleteTutorial(Long id) {
+        searchIndexService.deleteByEntity("tutorial", id);
         tutorialMapper.deleteById(id);
     }
 

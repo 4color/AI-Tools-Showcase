@@ -62,7 +62,7 @@
         <!-- Right Actions -->
         <div class="flex items-center gap-3">
           <template v-if="!userStore.isLoggedIn">
-            <router-link to="/login" class="btn btn-ghost text-sm">登录</router-link>
+            <router-link :to="loginTo" class="btn btn-ghost text-sm">登录</router-link>
             <router-link to="/register" class="btn btn-primary text-sm">注册</router-link>
           </template>
           <template v-else>
@@ -169,6 +169,12 @@ import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const userStore = useUserStore()
+
+// 点击登录时带上当前页面路径，登录成功后跳回原位置
+const loginTo = computed(() => {
+  if (route.path === '/login' || route.path === '/register') return { path: '/login' }
+  return { path: '/login', query: { redirect: route.fullPath } }
+})
 
 // 登录、注册、admin 不显示整站头部和尾部
 const hideSiteHeaderFooter = computed(() => {

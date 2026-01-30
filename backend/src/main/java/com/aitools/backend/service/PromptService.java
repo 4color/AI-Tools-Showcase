@@ -9,6 +9,7 @@ import com.aitools.backend.mapper.PromptMapper;
 import com.aitools.backend.mapper.TagMapper;
 import com.aitools.backend.mapper.UserMapper;
 import com.aitools.backend.mapper.CategoryMapper;
+import com.aitools.backend.service.SearchIndexService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +32,7 @@ public class PromptService {
     private final UserMapper userMapper;
     private final CategoryMapper categoryMapper;
     private final TagMapper tagMapper;
+    private final SearchIndexService searchIndexService;
 
     public List<Prompt> getAllPrompts() {
         List<Prompt> prompts = promptMapper.selectList(null);
@@ -287,7 +289,7 @@ public class PromptService {
             if (prompt.getTags() != null) savePromptTags(prompt.getId(), prompt.getTags());
         }
 
-        // 返回带富集信息的 Prompt
+        searchIndexService.upsertPrompt(prompt);
         enrichPrompt(prompt);
         return prompt;
     }
@@ -296,6 +298,7 @@ public class PromptService {
      * 后台删除提示词
      */
     public void deletePrompt(Long id) {
+        searchIndexService.deleteByEntity("prompt", id);
         promptMapper.deleteById(id);
         // tags 使用共享 tags 表，如需清理可在此补充删除逻辑
     }

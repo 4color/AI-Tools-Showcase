@@ -99,13 +99,11 @@ const handleLogin = async (e?: Event) => {
     if (result.success) {
       ElMessage.success('登录成功')
       
-      // 检查是否有重定向路径
+      // 检查是否有重定向路径（仅允许站内路径，且不为登录/注册页）
       const redirect = route.query.redirect as string | undefined
-      if (redirect && redirect !== '/login' && redirect !== '/register') {
-        // 跳转到之前保存的页面
+      if (redirect && redirect.startsWith('/') && redirect !== '/login' && redirect !== '/register') {
         router.push(redirect)
       } else {
-        // 默认跳转到首页
         router.push('/')
       }
     } else {

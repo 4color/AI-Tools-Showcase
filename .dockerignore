@@ -1,0 +1,26 @@
+# Git 与 IDE
+.git
+.gitignore
+.idea
+*.iml
+
+# 前端
+frontend/node_modules
+frontend/dist
+frontend/.env*
+frontend/*.log
+
+# 后端
+backend/target
+backend/*.log
+
+# 文档与脚本（不影响构建）
+*.md
+!README.md
+start-all.bat
+start.sh
+check-environment.bat
+docker-compose*.yml
+.env
+.env.*
+!.env.example

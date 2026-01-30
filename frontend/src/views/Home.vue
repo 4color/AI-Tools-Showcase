@@ -109,7 +109,7 @@
                      stroke-width="2" v-html="stat.iconPath"></svg>
               </div>
               <div>
-                <div class="text-2xl font-bold text-slate-900">{{ stat.value }}+</div>
+                <div class="text-2xl font-bold text-slate-900">{{ stat.value }}{{ stat.label === '用户评分' ? '' : '+' }}</div>
                 <div class="text-sm text-slate-500">{{ stat.label }}</div>
               </div>
             </div>
@@ -257,6 +257,7 @@
 import {ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import {toolsApi} from '@/api/tool.api'
+import {homeApi} from '@/api/home.api'
 import type {Tool} from '@/types'
 
 const router = useRouter()
@@ -267,36 +268,41 @@ const popularTags = ['ChatGPT', 'Midjourney', 'Stable Diffusion', 'Claude']
 //@ts-ignore
 const apiBaseUrl = window.__APP_ENV__.apiBaseUrl;
 
-const stats = [
+const stats = ref([
   {
     label: 'AI 工具',
-    value: '100',
+    value: '0',
     iconPath: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
     bgColor: 'bg-primary-50',
     iconColor: 'text-primary-600'
   },
   {
     label: '教程文章',
-    value: '50',
+    value: '0',
     iconPath: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
     bgColor: 'bg-amber-50',
     iconColor: 'text-amber-600'
   },
   {
     label: '活跃用户',
-    value: '10K',
+    value: '0',
     iconPath: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
     bgColor: 'bg-emerald-50',
     iconColor: 'text-emerald-600'
   },
   {
     label: '用户评分',
-    value: '4.8',
+    value: '0.0',
     iconPath: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
     bgColor: 'bg-red-50',
     iconColor: 'text-red-500'
   }
-]
+])
+
+function formatUserCount(n: number): string {
+  if (n >= 10000) return (n / 1000).toFixed(0) + 'K'
+  return String(n)
+}
 
 const features = [
   {
@@ -323,8 +329,9 @@ const features = [
 ]
 
 const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    router.push({path: '/tools', query: {search: searchQuery.value}})
+  const q = searchQuery.value.trim()
+  if (q) {
+    router.push({ path: '/search', query: { q } })
   }
 }
 
@@ -349,11 +356,18 @@ const formatRating = (rating: number | undefined): string => {
 
 onMounted(async () => {
   try {
-    const response = await toolsApi.getTools({page: 1, size: 4})
-    popularTools.value = response.content;
+    const [toolsRes, statsRes] = await Promise.all([
+      toolsApi.getTools({}, {page: 1, size: 4}),
+      homeApi.getStats()
+    ])
+    popularTools.value = toolsRes.content ?? []
+    const s = statsRes
+    stats.value[0].value = String(s.toolCount ?? 0)
+    stats.value[1].value = String(s.tutorialCount ?? 0)
+    stats.value[2].value = formatUserCount(s.userCount ?? 0)
+    stats.value[3].value = (s.averageRating ?? 0).toFixed(1)
   } catch (error) {
-    console.error('Failed to fetch popular tools:', error)
-    // 可以在这里添加错误处理，比如显示错误消息
+    console.error('Failed to fetch home data:', error)
   }
 })
 </script>

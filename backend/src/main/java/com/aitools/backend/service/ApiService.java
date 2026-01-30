@@ -8,6 +8,7 @@ import com.aitools.backend.entity.Category;
 import com.aitools.backend.mapper.ApiInfoMapper;
 import com.aitools.backend.mapper.ApiModelMapper;
 import com.aitools.backend.mapper.CategoryMapper;
+import com.aitools.backend.service.SearchIndexService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -31,6 +32,9 @@ public class ApiService {
 
     @Autowired
     private ApiModelMapper apiModelMapper;
+
+    @Autowired
+    private SearchIndexService searchIndexService;
 
     private Category resolveCategory(String categoryName) {
         if (categoryName == null || categoryName.trim().isEmpty()) {
@@ -217,6 +221,7 @@ public class ApiService {
             Category c = categoryMapper.selectById(api.getCategoryId());
             if (c != null) api.setCategory(c.getName());
         }
+        searchIndexService.upsertApi(api);
         return api;
     }
 
@@ -224,6 +229,7 @@ public class ApiService {
      * 后台删除 API（api_model 有 ON DELETE CASCADE）
      */
     public void deleteApi(Long id) {
+        searchIndexService.deleteByEntity("api", id);
         apiInfoMapper.deleteById(id);
     }
 

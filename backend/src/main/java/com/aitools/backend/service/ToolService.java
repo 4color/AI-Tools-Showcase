@@ -6,6 +6,7 @@ import com.aitools.backend.entity.Tool;
 import com.aitools.backend.mapper.LikeMapper;
 import com.aitools.backend.mapper.TagMapper;
 import com.aitools.backend.mapper.ToolMapper;
+import com.aitools.backend.service.SearchIndexService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ public class ToolService {
 
     @Autowired
     private LikeMapper likeMapper;
+
+    @Autowired
+    private SearchIndexService searchIndexService;
 
     public PageResponse<Tool> getToolsPageByCategoryAndKeywordAndPrice(PageRequest pageRequest, String category, String keyword, String price, String sort, String order) {
         return getToolsPageByCategoryAndKeywordAndPrice(pageRequest, category, keyword, price, sort, order, null, false);
@@ -119,11 +123,12 @@ public class ToolService {
         } else {
             toolMapper.updateById(tool);
         }
-
+        searchIndexService.upsertTool(tool);
         return tool;
     }
 
     public void deleteTool(Long id) {
+        searchIndexService.deleteByEntity("tool", id);
         toolMapper.deleteById(id);
     }
 
